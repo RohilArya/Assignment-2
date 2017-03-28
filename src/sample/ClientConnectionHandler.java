@@ -1,8 +1,11 @@
 package sample;
 
+import javafx.stage.FileChooser;
+
 import java.io.*;
 import java.net.Socket;
 import java.util.Date;
+import java.util.SplittableRandom;
 import java.util.StringTokenizer;
 import java.util.NoSuchElementException;
 
@@ -29,6 +32,7 @@ public class ClientConnectionHandler implements Runnable{
         String mainRequestLine = null;
         try
         {
+            System.out.println("Would you like to upload, download or DIR");
             mainRequestLine = requestInput.readLine();
             //handleRequest(mainRequestLine);
         } catch (IOException e)
@@ -50,23 +54,31 @@ public class ClientConnectionHandler implements Runnable{
         {
             StringTokenizer requestTokenizer = new StringTokenizer(mainRequestLine);
             String command = null;
-            String uri = null;
-            String httpVersion = null;
+            String name = null;
             String filename = "Blah";
-
+            String path = null;
+            String pathS = "Home/" + computerName + "Desktop/Server/";
+            String pathC = "Home/" + computerName + "Desktop/Client/";
+            String content = null;
             command = requestTokenizer.nextToken();
-            uri = requestTokenizer.nextToken();
-            if (!uri.startsWith("/")) {
-                uri = "/" + uri;
-            }
-            httpVersion = requestTokenizer.nextToken();
-            if (command.equalsIgnoreCase("Download") || command.equalsIgnoreCase("Upload") || command.equalsIgnoreCase("DIR")) {
-                File baseDir = new File("Home/" + computerName + "/Desktop/Server/" + filename);
-                sendFile(new File(baseDir, uri));
-            }
-            else
+            name = requestTokenizer.nextToken();
+            pathS = requestTokenizer.nextToken();
+            content = requestTokenizer.nextToken();
+
+            PrintWriter out = new PrintWriter(socket.getOutputStream());
+            BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+
+            if (command.equals("Download"))
             {
-                System.err.println("Method Not Allowed: "+mainRequestLine+"\r\n");
+                download(filename,pathS);
+            }
+            if (command.equals("upload"))
+            {
+                upload(filename,pathS,content);
+            }
+            if (command.equals("DIR"))
+            {
+                DIR(pathS);
             }
         }
         catch (NoSuchElementException e) {
@@ -95,6 +107,7 @@ public class ClientConnectionHandler implements Runnable{
         }
         return "unknown";
     }*/
+    /*
     private void sendFile(File file) throws IOException {
         String header = "File header\r\n";
         String contentType = "txt";
@@ -130,19 +143,57 @@ public class ClientConnectionHandler implements Runnable{
         requestOutput.write(content);
         requestOutput.writeBytes("\r\n");
         requestOutput.flush();
+    }*/
+
+    public void download(String filename, String pathS)
+    {
+        String pathC = null;
+        try
+        {
+            PrintWriter writer = new PrintWriter(pathC + filename);
+            BufferedReader reader = new BufferedReader(new FileReader(pathS + filename));
+            String line;
+            while ((line = reader.readLine()) != null)
+            {
+                writer.println(line);
+            }
+            System.out.println("Disconnected from server");
+            writer.close();
+            socket.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
-    public void download(String filename)
+    public void upload(String filename,String pathS, String content)
     {
+        try {
+            PrintWriter writer = new PrintWriter(pathS + filename,"UTF-8");
+            writer.print(content);
+            System.out.println("Disconnected from server");
+            writer.close();
+            socket.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
     }
+    public File[] DIR(String pathS) throws IOException {
+        File folder = new File(pathS);
+        File[] listofFiles = folder.listFiles();
 
-    public void upload(String filename)
-    {
-
-    }
-    public void DIR()
-    {
-
+        for (int i = 0; i < listofFiles.length; i++)
+        {
+            listofFiles[i].getName();
+        }
+        System.out.println("Disconnected from server");
+        socket.close();
+        return listofFiles;
     }
 }
