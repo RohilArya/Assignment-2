@@ -10,7 +10,7 @@ import java.util.StringTokenizer;
 import java.util.NoSuchElementException;
 
 public class ClientConnectionHandler implements Runnable{
-    private static String computerName = "Rohil";
+    private static String computerName;
     private Socket socket = null;
     private BufferedReader requestInput = null;
     private DataOutputStream requestOutput = null;
@@ -49,7 +49,7 @@ public class ClientConnectionHandler implements Runnable{
             }
         }
     }
-    private void handleRequest(String mainRequestLine) throws IOException {
+    public void handleRequest(String mainRequestLine) throws IOException {
         try
         {
             StringTokenizer requestTokenizer = new StringTokenizer(mainRequestLine);
@@ -74,7 +74,7 @@ public class ClientConnectionHandler implements Runnable{
             }
             if (command.equals("upload"))
             {
-                upload(filename,pathS,content);
+                upload(filename,pathS);
             }
             if (command.equals("DIR"))
             {
@@ -167,10 +167,11 @@ public class ClientConnectionHandler implements Runnable{
         }
     }
 
-    public void upload(String filename,String pathS, String content)
+    public void upload(String filename,String pathS)
     {
         try {
             PrintWriter writer = new PrintWriter(pathS + filename,"UTF-8");
+            String content = null;
             writer.print(content);
             System.out.println("Disconnected from server");
             writer.close();
@@ -196,4 +197,13 @@ public class ClientConnectionHandler implements Runnable{
         socket.close();
         return listofFiles;
     }
+
+    public String getComputerName() {
+        return this.computerName;
+    }
+    public void setComputerName(String computerName)
+    {
+        this.computerName = computerName;
+    }
+
 }
