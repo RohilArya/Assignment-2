@@ -57,12 +57,12 @@ public class ClientConnectionHandler implements Runnable{
             String name = null;
             String filename = "Blah";
             String path = null;
-            String pathS = "Home/" + computerName + "Desktop/Server/";
+           // String = "home/" + computerName + "Desktop/Server/";
             String pathC = "Home/" + computerName + "Desktop/Client/";
             String content = null;
             command = requestTokenizer.nextToken();
             name = requestTokenizer.nextToken();
-            pathS = requestTokenizer.nextToken();
+            //pathS = requestTokenizer.nextToken();
             content = requestTokenizer.nextToken();
 
             PrintWriter out = new PrintWriter(socket.getOutputStream());
@@ -70,15 +70,15 @@ public class ClientConnectionHandler implements Runnable{
 
             if (command.equals("Download"))
             {
-                download(filename,pathS);
+                //download(filename,pathS);
             }
             if (command.equals("upload"))
             {
-                upload(filename,pathS);
+                //upload(filename,pathS);
             }
             if (command.equals("DIR"))
             {
-                DIR(pathS);
+                //DIR(pathS);
             }
         }
         catch (NoSuchElementException e) {
