@@ -51,7 +51,7 @@ public class Main extends Application {
                 try {
                     Socket clientSocket = new Socket("127.0.0.1",1342);
                     String path = "/home/harshan/Desktop/Server/";
-                    new ClientConnectionHandler(clientSocket).download(filename,path);
+                    //new ClientConnectionHandler("localhost",8080).download(filename,path);
                 } catch (IOException e1) {
                     e1.printStackTrace();
                 }
@@ -66,7 +66,7 @@ public class Main extends Application {
                 try {
                     Socket clientSocket = new Socket("127.0.0.1",1342);
                     String path = "/home/harshan/Desktop/Client/";
-                    new ClientConnectionHandler(clientSocket).upload(filename,path);
+                    //new ClientConnectionHandler(clientSocket).upload(filename,path);
                 } catch (IOException e1) {
                     e1.printStackTrace();
                 }

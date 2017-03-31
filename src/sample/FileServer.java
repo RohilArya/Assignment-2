@@ -8,8 +8,8 @@ import java.net.Socket;
 
 
 class FileServer {
-     private ServerSocket serverSocket = null;
-    private int port;
+    private ServerSocket serverSocket = null;
+    private int port=8080;
 
     public FileServer(int port) throws IOException {
         this.port = port;
@@ -24,36 +24,30 @@ class FileServer {
         System.out.println("Server is listening");
         File[] directory = null;
         while (true) {
-            System.out.println("inside try");
             Socket clientSocket = serverSocket.accept();
-            System.out.println("accepting sockets");
 
-            ClientConnectionHandler cch = new ClientConnectionHandler(clientSocket);
-            System.out.println("clienthandler");
+            ClientConnectionHandler cch = new ClientConnectionHandler("localhost",this.port,clientSocket);
 
             Thread handlerThread = new Thread(cch);
-            System.out.println("threading");
 
             handlerThread.start();
-            System.out.println("thread starting");
 
             try {
-                System.out.println("inside try1");
 
                 handlerThread.join();
-                directory = cch.DIR("/home/harshan/Desktop/Server/");
+                //directory = cch.DIR("/home/rohil/Desktop/Server/");
 
             } catch (InterruptedException e) {
                 e.printStackTrace();
-                System.out.println("outside try1");
-            } catch (IOException e) {
+            // } catch (IOException e) {
                 e.printStackTrace();
             }
-            System.out.println("outside try1");
 
-            System.out.println("outside try");
             return directory;
         }
+    }
+    public static void main(String[]args) throws IOException{
+        FileServer Server = new FileServer(8080);
     }
 }
 

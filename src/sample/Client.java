@@ -16,10 +16,8 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
+import java.net.Socket;
 
 /**
  * Created by harshan on 30/03/17.
@@ -28,8 +26,18 @@ public class Client extends Application {
     private BorderPane layout;
     private TableView<File> tableLeft;
     private TableView<File> tableRight;
+    private String hostname = null;
+    private int port=8080;
+    public String dFile = "";
+    public void Client(String ip, int port)
+    {
+        this.hostname = ip;
+        this.port = port;
+    }
 
     public static void main(String[]args) throws IOException{
+        Client client = new Client();
+        client.Client("localhost",8080);
         launch(args);
     }
     @Override
@@ -52,7 +60,7 @@ public class Client extends Application {
         tableLeft.getColumns().add(serverColumn);
 
         /*********************DIR FOR SERVER***********************/
-        File folderL = new File("/home/harshan/Desktop/Server/");
+        File folderL = new File("/home/rohil/Desktop/Server/");
         File[] listofFilesL = folderL.listFiles();
 
         for (int i = 0; i < listofFilesL.length; i++) {
@@ -67,6 +75,7 @@ public class Client extends Application {
             public void handle(MouseEvent event) {
                 if(event.isPrimaryButtonDown() && event.getClickCount()==1){
                     fileNameL[0] =(tableLeft.getSelectionModel().getSelectedItem());
+                    dFile = fileNameL[0].toString();
                 }
             }
         });
@@ -79,7 +88,7 @@ public class Client extends Application {
         tableRight.getColumns().add(clientColumn);
 
         /*********************DIR FOR CLIENT***********************/
-        File folderR = new File("/home/harshan/Desktop/Client/");
+        File folderR = new File("/home/rohil/Desktop/Client/");
         File[] listofFilesR = folderR.listFiles();
 
         for (int i = 0; i < listofFilesR.length; i++) {
@@ -134,37 +143,51 @@ public class Client extends Application {
         primaryStage.show();
     }
 
-    public void Client(String ip, int port)
-    {
 
-    }
     /*****************************COMMAND*****************************/
     public void sendCommand(File fileName, String command) throws IOException {
 
-            BufferedReader br = new BufferedReader(new FileReader(fileName));
-            StringBuilder content = new StringBuilder();
+        BufferedReader br = new BufferedReader(new FileReader(fileName));
+        StringBuilder content = new StringBuilder();
 
-            try {
-                String line = br.readLine();
-                content.append("\n");
-
-                while (line != null) {
-                    content.append(line);
-                    content.append("\n");
-                    line = br.readLine();
-                }
-                //System.out.println(content.toString());
-            } finally {
-                br.close();
+        try {
+            String line = br.readLine();
+            content.append("?");
+            while (line != null) {
+                line = br.readLine();
+                content.append(line);
+                content.append("?");
             }
+            System.out.println(content.toString());
+        }
+        finally {
+            br.close();
+        }
         if(command == "Upload ") {
-            String fullCommand = command + "harshan " + "/home/harshan/Desktop/Server/" + content;
-            System.out.println(fullCommand);
+            String fullCommand = command + "rohil " + "/home/rohil/Desktop/Server/ " + content.toString();
+            //System.out.println(fullCommand);
+            Socket socket = new Socket(this.hostname, this.port);
+            PrintWriter out = new PrintWriter(socket.getOutputStream());
+            out.print(fullCommand);
+            out.flush();
+            socket.close();
+
 
         }
         if(command == "Download "){
-            String fullCommand = command + "harshan " + "/home/harshan/Desktop/Server/";
+            String path = "/home/rohil/Desktop/Server/";
+            String fullCommand = command + "rohil " + path + dFile;
             System.out.println(fullCommand);
+            Socket socket = new Socket(this.hostname, this.port);
+            InputStream is = socket.getInputStream();
+            InputStreamReader isr = new InputStreamReader(is);
+            BufferedReader br1 = new BufferedReader(isr);
+            String fileContents = br1.readLine();
+            socket.close();
+            br1.close();
+            is.close();
+            isr.close();
+
         }
 
     }
